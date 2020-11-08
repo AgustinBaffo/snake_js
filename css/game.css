@@ -1,0 +1,14 @@
+body{
+    margin: 0;
+    padding: 0;
+    background-color: black;
+    text-align: center;
+}
+h1,p{
+    color: white;
+}
+canvas{
+    background-color: #999;
+    width: 50%;
+    height: auto;
+}
