@@ -18,6 +18,9 @@
         highscoresScene = null,
         body = [],
         food = null,
+        foodCount = 0,
+        fruit = null,
+        fruitActive = false,
         //var wall = [],
         highscores = [],
         posHighscore = 10,
@@ -25,6 +28,7 @@
         score = 0,
         iBody = new Image(),
         iFood = new Image(),
+        iFruit = new Image(),
         aEat = new Audio(),
         aDie = new Audio();
     window.requestAnimationFrame = (function () {
@@ -125,10 +129,12 @@
         // Load assets
         iBody.src = 'assets/body.png';
         iFood.src = 'assets/fruit.png';
+        iFruit.src = 'assets/specialFruit.png';
         aEat.src = 'assets/chomp.m4a';
         aDie.src = 'assets/dies.m4a';
         // Create food
         food = new Rectangle(80, 80, 10, 10);
+        fruit = new Rectangle(80, 80, 10, 10);
         // Create walls
         //wall.push(new Rectangle(50, 50, 10, 10));
         //wall.push(new Rectangle(50, 100, 10, 10));
@@ -142,11 +148,38 @@
         run();
         repaint();
     }
+    function checkFruit(){
+        if(!fruitActive){
+            foodCount += 1;
+        }
+        if(foodCount >= 3){
+            fruit.x = random(canvas.width / 10 - 1) * 10;
+            fruit.y = random(canvas.height / 10 - 1) * 10;
+            fruitActive = true;
+            foodCount = 0;
+            ridFruit();
+        }
+    }
+    function ridFruit(){
+        return new Promise((resolve,reject) => {
+            setTimeout(() => {
+                fruitActive = false;
+                fruit.x = -10;
+                fruit.y = -10;
+                resolve();
+                // if(!err){
+                //     resolve();
+                // } else{
+                //     reject('Something went wrong :(');
+                // }
+            },4000)
+        });
+    }
     // Main Scene
     mainScene = new Scene();
     mainScene.paint = function (ctx) {
         // Clean canvas
-        ctx.fillStyle = '#030';
+        ctx.fillStyle = '#333';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         // Draw title
         ctx.fillStyle = '#fff';
@@ -171,14 +204,16 @@
         body.push(new Rectangle(0, 0, 10, 10));
         body.push(new Rectangle(0, 0, 10, 10));
         food.x = random(canvas.width / 10 - 1) * 10;
-        food.y = random(canvas.height / 10 - 1) * 10;
+        food.y = random(canvas.height / 10 - 1) * 10;        
+        fruit.x = -10;
+        fruit.y = -10;
         gameover = false;
     };
     gameScene.paint = function (ctx) {
         var i = 0,
             l = 0;
         // Clean canvas
-        ctx.fillStyle = '#030';
+        ctx.fillStyle = '#037';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         // Draw player
         ctx.strokeStyle = '#0f0';
@@ -193,6 +228,9 @@
         // Draw food
         ctx.strokeStyle = '#f00';
         food.drawImage(ctx, iFood);
+        //if (fruitActive){
+            fruit.drawImage(ctx, iFruit);
+        //}
         // Draw score
         ctx.fillStyle = '#fff';
         ctx.textAlign = 'left';
@@ -267,6 +305,14 @@
                 score += 1;
                 food.x = random(canvas.width / 10 - 1) * 10;
                 food.y = random(canvas.height / 10 - 1) * 10;
+                checkFruit();
+                aEat.play();
+            }
+            // Fruit Intersects
+            if (body[0].intersects(fruit)) {
+                score += 10;
+                fruit.x = -10;
+                fruit.y = -10;
                 aEat.play();
             }
             // Wall Intersects
