@@ -14,9 +14,9 @@ score = 0,
 body = new Array(),
 food = null,
 iBody = new Image(),
-iFood = new Image();
-//aEat = new Audio(),
-//aDie = new Audio();
+iFood = new Image(),
+aEat = new Audio(),
+aDie = new Audio();
 
 window.requestAnimationFrame = (function () {
     return window.requestAnimationFrame ||
@@ -177,7 +177,7 @@ function act() {
             if (body[0].intersects(body[i])) {
             gameover = true;
             pause = true;
-            //aDie.play();
+            aDie.play();
             }
         }
         // Food Intersects
@@ -186,7 +186,7 @@ function act() {
             score += 1;
             food.x = random(canvas.width / 10 - 1) * 10;
             food.y = random(canvas.height / 10 - 1) * 10;
-            //aEat.play();
+            aEat.play();
         }
     }
     // Pause/Unpause
@@ -211,8 +211,8 @@ function init() {
     // Load assets
     iBody.src = 'assets/body.png';
     iFood.src = 'assets/fruit.png';
-    //aEat.src = 'assets/chomp.oga';
-    //aDie.src = 'assets/dies.oga';
+    aEat.src = 'assets/chomp.oga';
+    aDie.src = 'assets/dies.oga';
     // Create food
     food = new Rectangle(80, 80, 10, 10);
     // Create walls
