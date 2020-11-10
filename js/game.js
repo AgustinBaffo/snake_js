@@ -21,7 +21,6 @@
         foodCount = 0,
         fruit = null,
         fruitActive = false,
-        //var wall = [],
         highscores = [],
         posHighscore = 10,
         dir = 0,
@@ -121,8 +120,7 @@
             foodCount += 1;
         }
         if(foodCount >= 3){
-            fruit.x = random(canvas.width / 10 - 1) * 10;
-            fruit.y = random(canvas.height / 10 - 1) * 10;
+            fruitSpawn();
             fruitActive = true;
             foodCount = 0;
             ridFruit();
@@ -135,12 +133,7 @@
                 fruit.x = -10;
                 fruit.y = -10;
                 resolve();
-                // if(!err){
-                //     resolve();
-                // } else{
-                //     reject('Something went wrong :(');
-                // }
-            },4000)
+            },3500)
         });
     }
     function run() {
@@ -162,11 +155,6 @@
         // Create food
         food = new Rectangle(80, 80, 10, 10);
         fruit = new Rectangle(80, 80, 10, 10);
-        // Create walls
-        //wall.push(new Rectangle(50, 50, 10, 10));
-        //wall.push(new Rectangle(50, 100, 10, 10));
-        //wall.push(new Rectangle(100, 50, 10, 10));
-        //wall.push(new Rectangle(100, 100, 10, 10));
         // Load saved highscores
         if (localStorage.highscores) {
             highscores = localStorage.highscores.split(',');
@@ -187,6 +175,40 @@
         .catch(function(err){
             return console.log('HTTP GET ERROR: ' + err);
         });
+    }
+    //Check if food intersects body
+    function foodSpawn(){
+        let intersection;
+        let i;
+        do {
+            intersection = false;
+            food.x = random(canvas.width / 10 - 1) * 10;
+            food.y = random(canvas.height / 10 - 1) * 10;       
+            for (i = 1 ; i < body.length; i += 1) {
+                if (food.intersects(body[i])) {                    
+                    intersection = true;
+                }
+            }            
+        } while (intersection);       
+    }
+    //Check if fruit intersects body
+    function fruitSpawn(){
+        let intersection = false;
+        let i;
+        do {
+            intersection = false;
+            fruit.x = random(canvas.width / 10 - 1) * 10;
+            fruit.y = random(canvas.height / 10 - 1) * 10;
+            if(fruit.intersects(food)){
+                intersection = true;
+            } else{
+                for (i = 1 ; i < body.length; i += 1) {
+                    if (fruit.intersects(body[i])) {
+                        intersection = true;
+                    }
+                }
+            }
+        } while (intersection);       
     }
     // Main Scene
     mainScene = new Scene();
@@ -216,8 +238,7 @@
         body.push(new Rectangle(40, 40, 10, 10));
         body.push(new Rectangle(0, 0, 10, 10));
         body.push(new Rectangle(0, 0, 10, 10));
-        food.x = random(canvas.width / 10 - 1) * 10;
-        food.y = random(canvas.height / 10 - 1) * 10;        
+        foodSpawn();       
         fruit.x = -10;
         fruit.y = -10;
         foodCount = 0;
@@ -227,18 +248,13 @@
         var i = 0,
             l = 0;
         // Clean canvas
-        ctx.fillStyle = '#037';
+        ctx.fillStyle = '#247';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         // Draw player
         ctx.strokeStyle = '#0f0';
         for (i = 0, l = body.length; i < l; i += 1) {
             body[i].drawImage(ctx, iBody);
         }
-        // Draw walls
-        //ctx.fillStyle = '#999';
-        //for (i = 0, l = wall.length; i < l; i += 1) {
-        // wall[i].fill(ctx);
-        //}
         // Draw food
         ctx.strokeStyle = '#f00';
         food.drawImage(ctx, iFood);
@@ -317,8 +333,7 @@
             if (body[0].intersects(food)) {
                 body.push(new Rectangle(0, 0, 10, 10));
                 score += 1;
-                food.x = random(canvas.width / 10 - 1) * 10;
-                food.y = random(canvas.height / 10 - 1) * 10;
+                foodSpawn();
                 checkFruit();
                 aEat.play();
             }
@@ -328,8 +343,6 @@
                 fruit.x = -10;
                 fruit.y = -10;
                 aEat.play();
-                //createPost('https://www.jsonplaceholder.com/index?score=${score}');
-                //createPost('https://jsonplaceholder.typicode.com/todos/1');
                 createPost('https://jsonplaceholder.typicode.com/todos/'+ insertParam('score',score));                
             }
 
@@ -343,18 +356,6 @@
                 if(!RegExp.$1) {s += (s.length>0 ? '&' : '?') + kvp;};
                 return s;
             }
-            // Wall Intersects
-            //for (i = 0, l = wall.length; i < l; i += 1) {
-            // if (food.intersects(wall[i])) {
-            // food.x = random(canvas.width / 10 - 1) * 10;
-            // food.y = random(canvas.height / 10 - 1) * 10;
-            // }
-            //
-            // if (body[0].intersects(wall[i])) {
-            // gameover = true;
-            // pause = true;
-            // }
-            //}
             // Body Intersects
             for (i = 2, l = body.length; i < l; i += 1) {
                 if (body[0].intersects(body[i])) {
