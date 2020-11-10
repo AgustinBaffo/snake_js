@@ -1,6 +1,6 @@
 # Creating news files
 
-Radium Rocket Course. - 
+Radium Rocket Course - My First Canvas Game: The Snake
 
 
 **Version 1.0.0**

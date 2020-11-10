@@ -116,6 +116,33 @@
             scenes[currentScene].paint(ctx);
         }
     }
+    function checkFruit(){
+        if(!fruitActive){
+            foodCount += 1;
+        }
+        if(foodCount >= 3){
+            fruit.x = random(canvas.width / 10 - 1) * 10;
+            fruit.y = random(canvas.height / 10 - 1) * 10;
+            fruitActive = true;
+            foodCount = 0;
+            ridFruit();
+        }
+    }
+    function ridFruit(){
+        return new Promise((resolve,reject) => {
+            setTimeout(() => {
+                fruitActive = false;
+                fruit.x = -10;
+                fruit.y = -10;
+                resolve();
+                // if(!err){
+                //     resolve();
+                // } else{
+                //     reject('Something went wrong :(');
+                // }
+            },4000)
+        });
+    }
     function run() {
         setTimeout(run, 50);
         if (scenes.length) {
@@ -148,31 +175,17 @@
         run();
         repaint();
     }
-    function checkFruit(){
-        if(!fruitActive){
-            foodCount += 1;
-        }
-        if(foodCount >= 3){
-            fruit.x = random(canvas.width / 10 - 1) * 10;
-            fruit.y = random(canvas.height / 10 - 1) * 10;
-            fruitActive = true;
-            foodCount = 0;
-            ridFruit();
-        }
-    }
-    function ridFruit(){
-        return new Promise((resolve,reject) => {
-            setTimeout(() => {
-                fruitActive = false;
-                fruit.x = -10;
-                fruit.y = -10;
-                resolve();
-                // if(!err){
-                //     resolve();
-                // } else{
-                //     reject('Something went wrong :(');
-                // }
-            },4000)
+    function createPost(url){
+        console.log('Sending data: ' + url);
+        fetch(url)
+        .then(function(response){
+            return response.json();
+        })
+        .then(function(json){
+            return console.log(json);
+        })
+        .catch(function(err){
+            return console.log('HTTP GET ERROR: ' + err);
         });
     }
     // Main Scene
@@ -207,6 +220,7 @@
         food.y = random(canvas.height / 10 - 1) * 10;        
         fruit.x = -10;
         fruit.y = -10;
+        foodCount = 0;
         gameover = false;
     };
     gameScene.paint = function (ctx) {
@@ -314,6 +328,20 @@
                 fruit.x = -10;
                 fruit.y = -10;
                 aEat.play();
+                //createPost('https://www.jsonplaceholder.com/index?score=${score}');
+                //createPost('https://jsonplaceholder.typicode.com/todos/1');
+                createPost('https://jsonplaceholder.typicode.com/todos/'+ insertParam('score',score));                
+            }
+
+            function insertParam(key,value)
+            {
+                key = encodeURIComponent(key); value = encodeURIComponent(value);
+                var s = document.location.search;
+                var kvp = key+"="+value;
+                var r = new RegExp("(&|\\?)"+key+"=[^\&]*");
+                s = s.replace(r,"$1"+kvp);
+                if(!RegExp.$1) {s += (s.length>0 ? '&' : '?') + kvp;};
+                return s;
             }
             // Wall Intersects
             //for (i = 0, l = wall.length; i < l; i += 1) {
